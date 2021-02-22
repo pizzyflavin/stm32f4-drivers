@@ -7,7 +7,7 @@
 # Generic Makefile (based on gcc)
 #
 # ChangeLog :
-#	2017-02-10 - Several enhancements + project update mode
+#   2017-02-10 - Several enhancements + project update mode
 #   2015-07-22 - first version
 # ------------------------------------------------
 
@@ -75,6 +75,8 @@ BIN = $(CP) -O binary -S
 # debugging
 #######################################
 GDBTUI = $(PREFIX)gdb -tui
+
+FLASH_BASE = 0x08000000
 
 
 #######################################
@@ -192,9 +194,9 @@ flash_openocd: $(BUILD_DIR)/$(TARGET).bin
             -c "reset halt" \
             -c "sleep 100" \
             -c "wait_halt 2" \
-            -c "flash write_image erase $(BUILD_DIR)/$(TARGET).bin 0x08000000" \
+            -c "flash write_image erase $< $(FLASH_BASE)" \
             -c "sleep 100" \
-            -c "verify_image $(BUILD_DIR)/$(TARGET).bin 0x08000000" \
+            -c "verify_image $< $(FLASH_BASE)" \
             -c "sleep 100" \
             -c "reset run" \
             -c shutdown
@@ -205,7 +207,7 @@ debug_openocd: $(BUILD_DIR)/$(TARGET).elf flash_openocd
                       -c "init" \
                       -c "halt" \
                       -c "reset halt" &
-	$(GDBTUI) --eval-command="target remote localhost:3333" $(BUILD_DIR)/$(TARGET).elf
+	$(GDBTUI) --eval-command="target remote localhost:3333" $<
 
 
 #######################################
